@@ -9,7 +9,7 @@ function debug_echo {
 
 function check_progs {
 #Check existence of certain required programs
-  PROGS="xdpyinfo wmctrl echo awk cut"
+  PROGS="xdpyinfo wmctrl xprop echo awk cut"
   for name in $PROGS; do
     if [ ! `which $name` ];then
       echo -e "*Program “$name” is not installed or not in PATH."
@@ -18,25 +18,8 @@ function check_progs {
   done
 }
 
-check_progs
-
-TOTAL_WIDTH=`xdpyinfo | grep 'dimensions:' | cut -f 2 -d ':' | cut -f 1 -d 'x' | tr -d ' '`
-TOTAL_HEIGHT=`xdpyinfo | grep 'dimensions:' | cut -f 2 -d ':' | cut -f 2 -d 'x'| cut -f 1 -d ' ' | tr -d ' '`
-
-THREEQUARTER_WIDTH=$(($TOTAL_WIDTH*3/4))
-THREEQUARTER_HEIGHT=$(($TOTAL_HEIGHT*3/4))
-
-# CURRENT_WINDOW_ID=`xprop -root | grep "_NET_ACTIVE_WINDOW(WINDOW)" |sed 's/.*\(0x.*\),.*/\1/'`
-
-debug_echo screen width: $TOTAL_WIDTH
-debug_echo screen height: $TOTAL_HEIGHT
-
-WINDOW_LIST=`wmctrl -lG`
-IFS=$'\n'
-# WINDOW_LIST=`xlsclients -display :0.0 -l|grep 'Window 0x' |sed 's/://'|awk '{print $2}'`
-for WINDOW in $WINDOW_LIST
-do
-  debug_echo "WINDOW: "$WINDOW
+function gather_window {
+  debug_echo "WINDOW: "$1
   WINDOW_ID=`echo $WINDOW |awk '{print $1}'`
   WINDOW_G=`echo $WINDOW |awk '{print $2}'`
   WINDOW_X=`echo $WINDOW |awk '{print $3}'`
@@ -67,6 +50,27 @@ do
     # wmctrl -i -r $WINDOW_ID -b add,maximized_vert,maximized_horz
     # wmctrl -i -r $WINDOW_ID -b remove,shaded
   fi
+}
+
+check_progs
+
+TOTAL_WIDTH=`xdpyinfo | grep 'dimensions:' | cut -f 2 -d ':' | cut -f 1 -d 'x' | tr -d ' '`
+TOTAL_HEIGHT=`xdpyinfo | grep 'dimensions:' | cut -f 2 -d ':' | cut -f 2 -d 'x'| cut -f 1 -d ' ' | tr -d ' '`
+
+THREEQUARTER_WIDTH=$(($TOTAL_WIDTH*3/4))
+THREEQUARTER_HEIGHT=$(($TOTAL_HEIGHT*3/4))
+
+# CURRENT_WINDOW_ID=`xprop -root | grep "_NET_ACTIVE_WINDOW(WINDOW)" |sed 's/.*\(0x.*\),.*/\1/'`
+
+debug_echo screen width: $TOTAL_WIDTH
+debug_echo screen height: $TOTAL_HEIGHT
+
+WINDOW_LIST=`wmctrl -lG`
+IFS=$'\n'
+# WINDOW_LIST=`xlsclients -display :0.0 -l|grep 'Window 0x' |sed 's/://'|awk '{print $2}'`
+for WINDOW in $WINDOW_LIST
+do
+	gather_window $WINDOW
 done
 
 exit 0

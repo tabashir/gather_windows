@@ -27,29 +27,30 @@ function gather_window {
   WINDOW_W=`echo $WINDOW |awk '{print $5}'`
   WINDOW_H=`echo $WINDOW |awk '{print $6}'`
   WINDOW_RT=$(($WINDOW_X+$WINDOW_W)) 
+  WINDOW_RTH=$(($WINDOW_Y+$WINDOW_H)) 
 
   debug_echo "WINDOW_SPLITS: $WINDOW_ID,$WINDOW_G,$WINDOW_X,$WINDOW_Y,$WINDOW_W,$WINDOW_H"
 
-  if [[ $WINDOW_RT -gt $TOTAL_WIDTH ]]
+  if [[ $WINDOW_RT -gt $TOTAL_WIDTH ]] || [[ $WINDOW_RTH -gt $TOTAL_HEIGHT ]]
   then
-    debug_echo "window $WINDOW off screen - moving it..."
+    debug_echo "window $WINDOW off screen X - moving it..."
     debug_echo "params $WINDOW_G,50,20,$(($TOTAL_WIDTH-100)),$(($TOTAL_HEIGHT-100))"
     #wmctrl -v -i -r $WINDOW_ID -e $WINDOW_G,50,20,$(($TOTAL_WIDTH-100)),$(($TOTAL_HEIGHT-100))
     # wmctrl -v -i -r $WINDOW_ID -t 0
     wmctrl -v -i -r $WINDOW_ID -e $WINDOW_G,50,20,-1,-1
-    if [ $WINDOW_W -gt $TOTAL_WIDTH ]; then
-      debug_echo "resizing horz"
-      wmctrl -i -r $WINDOW_ID -b remove,maximized_horz
-      wmctrl -v -i -r $WINDOW_ID -e $WINDOW_G,50,20,$(($TOTAL_WIDTH-100)),-1
-    fi
-    if [ $WINDOW_H -gt $TOTAL_HEIGHT ]; then
-      debug_echo "resizing vert"
-      wmctrl -i -r $WINDOW_ID -b remove,maximized_vert
-      wmctrl -v -i -r $WINDOW_ID -e $WINDOW_G,50,20,-1,$(($TOTAL_HEIGHT-100))
-    fi
-    # wmctrl -i -r $WINDOW_ID -b add,maximized_vert,maximized_horz
-    # wmctrl -i -r $WINDOW_ID -b remove,shaded
   fi
+  if [ $WINDOW_W -gt $TOTAL_WIDTH ]; then
+    debug_echo "resizing horz"
+    wmctrl -i -r $WINDOW_ID -b remove,maximized_horz
+    wmctrl -v -i -r $WINDOW_ID -e $WINDOW_G,50,20,$(($TOTAL_WIDTH-100)),-1
+  fi
+  if [ $WINDOW_H -gt $TOTAL_HEIGHT ]; then
+    debug_echo "resizing vert"
+    wmctrl -i -r $WINDOW_ID -b remove,maximized_vert
+    wmctrl -v -i -r $WINDOW_ID -e $WINDOW_G,50,20,-1,$(($TOTAL_HEIGHT-100))
+  fi
+  # wmctrl -i -r $WINDOW_ID -b add,maximized_vert,maximized_horz
+  # wmctrl -i -r $WINDOW_ID -b remove,shaded
 }
 
 check_progs
